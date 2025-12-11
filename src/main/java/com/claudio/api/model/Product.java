@@ -1,16 +1,17 @@
-package com.example.demo.model;
+package com.claudio.api.model;
 
 
 public class Product {
     private String name;
     private double price;
-    private String description;
-    private int id;
+    private Integer id;
 
-    public Product(String name, double price, String description, int id) {
+    public Product() {
+    }
+
+    public Product(Integer id, String name, double price) {
         this.name = name;
         this.price = price;
-        this.description = description;
         this.id = id;
     }
 
@@ -30,19 +31,11 @@ public class Product {
         this.price = price;
     }
 
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public int getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 }
