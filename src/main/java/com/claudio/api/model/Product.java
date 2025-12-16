@@ -1,18 +1,26 @@
 package com.claudio.api.model;
 
 
+import jakarta.persistence.*;
+
+@Entity
+@Table(name = "products")
 public class Product {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
     private String name;
     private double price;
-    private Integer id;
-
+    private int stock;
+    @Version
+    private Long version;
     public Product() {
     }
 
-    public Product(Integer id, String name, double price) {
+    public Product(String name, double price, int stock) {
         this.name = name;
         this.price = price;
-        this.id = id;
+        this.stock = stock;
     }
 
     public String getName() {
@@ -31,11 +39,19 @@ public class Product {
         this.price = price;
     }
 
-    public Integer getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(Integer id) {
+    public void setId(Long id) {
         this.id = id;
+    }
+
+    public int getStock() {
+        return stock;
+    }
+
+    public void setStock(int stock) {
+        this.stock = stock;
     }
 }

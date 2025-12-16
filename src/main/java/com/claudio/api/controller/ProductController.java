@@ -4,6 +4,7 @@ import com.claudio.api.model.Product;
 import com.claudio.api.utils.AnswerApi;
 import com.claudio.api.service.ProductService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -27,7 +28,7 @@ public class ProductController {
     }
 
     @GetMapping("/products/{id}")
-    public ResponseEntity<?> showProduct(@PathVariable Integer id) {
+    public ResponseEntity<?> showProduct(@PathVariable Long id) {
         if (id <= 0) {
             return ResponseEntity.badRequest().body("Parameter 'id' is required");
         }
@@ -44,7 +45,7 @@ public class ProductController {
     }
 
     @PutMapping("/products/{id}")
-    public ResponseEntity<?> putProduct(@PathVariable Integer id, @RequestBody Product updatedProduct) {
+    public ResponseEntity<?> putProduct(@PathVariable Long id, @RequestBody Product updatedProduct) {
         Optional<Product> result = productService.updateProduct(id, updatedProduct);
 
         if (result.isPresent()) {
@@ -55,13 +56,29 @@ public class ProductController {
     }
 
     @DeleteMapping("/products/{id}")
-    public ResponseEntity<?> deleteProduct(@PathVariable Integer id) {
-       boolean removed = productService.deleteProduct(id);
+    public ResponseEntity<?> deleteProduct(@PathVariable Long id) {
+         productService.deleteProduct(id);
+            return ResponseEntity.ok("Product deleted with id: " + id);
+    }
 
-        if (removed) {
-            return ResponseEntity.ok("Product deleted successfully");
-        } else {
-            return ResponseEntity.status(404).body("Product not found");
+    @PostMapping("/products/{id}/purchase")
+    public ResponseEntity<?> purchaseProduct(@PathVariable Long id) {
+        try {
+            Product updatedProduct = productService.buyProduct(id);
+            return ResponseEntity.ok("Purchase successful! Remaining stock: " + updatedProduct.getStock());
+        } catch (ObjectOptimisticLockingFailureException e) {
+            // Manejo de la concurrencia
+            return ResponseEntity.status(409).body("Collision detected! Try again.");
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().build();
         }
+    }
+    // Endpoint auxiliar para resetear y probar muchas veces
+    @PostMapping("/init-data")
+    public ResponseEntity<?> initData() {
+        productService.initdb();
+        return ResponseEntity.ok("Database initialized with products");
     }
 }
