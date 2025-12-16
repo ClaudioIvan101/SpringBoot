@@ -62,18 +62,9 @@ public class ProductController {
     }
 
     @PostMapping("/products/{id}/purchase")
-    public ResponseEntity<?> purchaseProduct(@PathVariable Long id) {
-        try {
+    public ResponseEntity<?> purchaseProduct(@PathVariable Long id) throws Exception {
             Product updatedProduct = productService.buyProduct(id);
-            return ResponseEntity.ok("Purchase successful! Remaining stock: " + updatedProduct.getStock());
-        } catch (ObjectOptimisticLockingFailureException e) {
-            // Manejo de la concurrencia
-            return ResponseEntity.status(409).body("Collision detected! Try again.");
-        } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        } catch (Exception e) {
-            return ResponseEntity.internalServerError().build();
-        }
+            return ResponseEntity.ok("Purchase successful. Remaining stock: " + updatedProduct.getStock());
     }
     // Endpoint auxiliar para resetear y probar muchas veces
     @PostMapping("/init-data")

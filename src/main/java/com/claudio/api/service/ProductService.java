@@ -2,7 +2,10 @@ package com.claudio.api.service;
 
 import com.claudio.api.model.Product;
 import com.claudio.api.repository.ProductRepository;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -17,6 +20,14 @@ public class ProductService {
     public ProductService(ProductRepository productRepository) {
         this.productRepository = productRepository;
     }
+
+    // Intenta hasta 5 veces. Espera 100ms entre cada intento.
+    @Retryable(
+            retryFor = ObjectOptimisticLockingFailureException.class,
+            maxAttempts = 5,
+            backoff = @Backoff(delay = 100)
+    )
+
     // Método para inicializar datos de prueba
     public void initdb() {
         productRepository.save(new Product("Coca-Cola", 2.99, 100));
@@ -54,8 +65,12 @@ public class ProductService {
         productRepository.deleteById(id);
     }
     public Product buyProduct(Long id) throws Exception {
+       // Log para ver cuando esta sufriendo colisiones
+        System.out.println("Intento de compra en el hilo: " + Thread.currentThread());
+
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new Exception("Product not found"));
+
         // Simulamos latencia (para que k6 pueda causar colisiones)
         try { Thread.sleep(10); } catch (InterruptedException e) {}
         // Verificamos stock
