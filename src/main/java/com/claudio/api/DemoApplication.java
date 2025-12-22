@@ -3,7 +3,7 @@ package com.claudio.api;
 import com.claudio.api.model.Product;
 import com.claudio.api.repository.ProductRepository;
 import com.claudio.api.repository.UserRepository;
-import com.claudio.api.security.User;
+import com.claudio.api.model.User;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

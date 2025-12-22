@@ -2,7 +2,7 @@ package com.claudio.api.service;
 
 
 import com.claudio.api.repository.UserRepository;
-import com.claudio.api.security.User;
+import com.claudio.api.model.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;

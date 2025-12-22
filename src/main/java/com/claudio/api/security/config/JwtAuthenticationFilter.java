@@ -31,41 +31,51 @@ private final UserDetailsService userDetailsService;
             @NonNull HttpServletRequest request,
             @NonNull HttpServletResponse response,
             @NonNull FilterChain filterChain
-            ) throws ServletException, IOException {
-     // Busco el header "Authorization"
+    ) throws ServletException, IOException {
+
+        System.out.println("---INICIO FILTRO JWT---");
+
         final String authHeader = request.getHeader("Authorization");
-        final String jwt;
-        final String userEmail;
-        // Si no hay header o no empieza con "Bearer ", sigo con el filtro
+
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            System.out.println(" No hay header Authorization o no empieza con Bearer");
             filterChain.doFilter(request, response);
             return;
         }
-        // Extraigo el token JWT del header
-        jwt = authHeader.substring(7);
-        // Extraigo el usuario (email) del token
-        userEmail = jwtService.extractUsername(jwt);
-        // Si hay un usuario y no está autenticado sistema
+
+        System.out.println("Header encontrado: " + authHeader);
+        final String jwt = authHeader.substring(7);
+        System.out.println("Token extraído: " + jwt);
+
+        final String userEmail = jwtService.extractUsername(jwt);
+        System.out.println("Usuario en Token: " + userEmail);
+
         if (userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            // Busco el usuario en mi base de datos
+
             UserDetails userDetails = this.userDetailsService.loadUserByUsername(userEmail);
-            // Si el token es válido, autentico al usuario
-            if(jwtService.isTokenValid(jwt, userDetails)) {
+            System.out.println("🗄️ Usuario encontrado en BD: " + userDetails.getUsername());
+
+            if (jwtService.isTokenValid(jwt, userDetails)) {
+                System.out.println("El Token es VÁLIDO");
+
                 UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                         userDetails,
                         null,
                         userDetails.getAuthorities()
                 );
+
                 authToken.setDetails(
                         new WebAuthenticationDetailsSource().buildDetails(request)
                 );
 
-                // Registramos al usuario como autenticado en el contexto de seguridad
                 SecurityContextHolder.getContext().setAuthentication(authToken);
-                }
-            filterChain.doFilter(request, response);
+                System.out.println("Usuario AUTENTICADO en el Contexto de Seguridad");
+            } else {
+                System.out.println("El Token NO es válido");
+            }
         }
 
-
+        System.out.println("--- FIN FILTRO JWT (Pasando al siguiente) ---");
+        filterChain.doFilter(request, response);
     }
 }

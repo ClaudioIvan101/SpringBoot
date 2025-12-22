@@ -1,6 +1,6 @@
 package com.claudio.api.repository;
 
-import com.claudio.api.security.User;
+import com.claudio.api.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;

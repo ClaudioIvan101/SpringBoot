@@ -1,4 +1,4 @@
-package com.claudio.api.security;
+package com.claudio.api.model;
 
 import jakarta.persistence.*;
 
